@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,visualstudiocode
 
+level.db
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -186,8 +188,5 @@ poetry.toml
 # Ignore all local history of files
 .history
 .ionide
-
-
-level.db
 
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
