@@ -22,6 +22,24 @@ async def on_ready():
                                 (user INT PRIMARY KEY NOT NULL, xp INT, level INT, nextlevel INT, background VARCHAR(30), time INT, total INT, name VARCHAR(50))""")
 
 
+@bot.tree.command(name="rank", description="Shows your rank")
+async def rank(interaction: discord.Interaction):
+    user_id = interaction.user.id
+    async with bot.db.cursor() as cursor:
+        await cursor.execute("SELECT xp, level, nextlevel FROM levels WHERE user =?", (user_id,))
+        data = await cursor.fetchone()
+
+    if not data:
+        await interaction.response.send_message("You don't have a rank yet!", ephemeral=True)
+    else:
+        embed = discord.Embed(
+            title=f"{interaction.user.name} Rank!", color=0x377BB8)
+        embed.add_field(name="XP", value=f"`{data[0]}`", inline=True)
+        embed.add_field(name="Required", value=f"`{data[2]}`", inline=True)
+        embed.add_field(name="Level", value=f"`{data[1]}`", inline=True)
+        await interaction.response.send_message(embed=embed)
+
+
 @bot.event
 async def on_message(message: discord.Message):
     if message.author.bot:
