@@ -187,4 +187,7 @@ poetry.toml
 .history
 .ionide
 
+
+level.db
+
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode
