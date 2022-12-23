@@ -79,6 +79,7 @@ async def on_message(message: discord.Message):
 
         num = random.randint(15, 25)
         await cursor.execute("UPDATE levels SET xp =?, total =?, time =?, name =? WHERE user =?", (xp+num, total+num, int(time.time()+60), author.name, author.id,))
+        await bot.db.commit()
 
         await cursor.execute("SELECT level, xp FROM levels WHERE user =?", (author.id,))
         xplevel = await cursor.fetchone()
