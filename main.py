@@ -1,5 +1,7 @@
 import discord
 from discord.ext import commands
+from discord.commands.context import ApplicationContext
+from discord.commands import Option
 import aiosqlite
 import asyncio
 import time
@@ -8,7 +10,7 @@ from dotenv import load_dotenv, find_dotenv
 import os
 
 
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+bot = discord.Bot(intents=discord.Intents.all())
 load_dotenv(find_dotenv())
 
 
@@ -22,22 +24,32 @@ async def on_ready():
                                 (user INT PRIMARY KEY NOT NULL, xp INT, level INT, nextlevel INT, background VARCHAR(30), time INT, total INT, name VARCHAR(50))""")
 
 
-@bot.tree.command(name="rank", description="Shows your rank")
-async def rank(interaction: discord.Interaction):
-    user_id = interaction.user.id
+@bot.slash_command(name="rank", description="Shows your rank")
+async def rank(ctx: ApplicationContext, user: Option(discord.User,
+                                                     "Select a user to get the rank from",
+                                                     required=False)):
+    if user is None:
+        user_id = ctx.user.id
+        user_name = ctx.user.name
+    else:
+        user_id = user.id
+        user_name = user.name
     async with bot.db.cursor() as cursor:
         await cursor.execute("SELECT xp, level, nextlevel FROM levels WHERE user =?", (user_id,))
         data = await cursor.fetchone()
 
     if not data:
-        await interaction.response.send_message("You don't have a rank yet!", ephemeral=True)
+        if user is None:
+            await ctx.respond("You don't have a rank yet!", ephemeral=True)
+        else:
+            await ctx.respond("This user doesn't have a rank yet!", ephemeral=True)
     else:
         embed = discord.Embed(
-            title=f"{interaction.user.name} Rank!", color=0x377BB8)
+            title=f"{user_name} Rank!", color=0x377BB8)
         embed.add_field(name="XP", value=f"`{data[0]}`", inline=True)
         embed.add_field(name="Required", value=f"`{data[2]}`", inline=True)
         embed.add_field(name="Level", value=f"`{data[1]}`", inline=True)
-        await interaction.response.send_message(embed=embed)
+        await ctx.respond(embed=embed)
 
 
 @bot.event
